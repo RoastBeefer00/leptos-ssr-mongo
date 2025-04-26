@@ -89,3 +89,31 @@ Finally, run the server binary.
 ## Licensing
 
 This template itself is released under the Unlicense. You should replace the LICENSE for your own application with an appropriate license if you plan to release it publicly.
+
+## Setup
+### Google Auth
+In GCP, set up a new OAUTH 2.0 client with redirect `/auth/google/callback`
+### Environment variables
+Set up a `.env` file like this:
+```
+# Server configuration
+# LEPTOS_OUTPUT_NAME="leptos-test"
+# LEPTOS_SITE_ROOT="target/site"
+# LEPTOS_SITE_PKG_DIR="pkg"
+# LEPTOS_SITE_ADDR="127.0.0.1:3000" # Make sure this matches Google redirect URI host/port
+# LEPTOS_RELOAD_PORT="3001"
+
+# Google OAuth Credentials
+GOOGLE_CLIENT_ID=""  ## your client ID from the OAUTH client
+GOOGLE_CLIENT_SECRET=""  ## your client secret from the OAUTH client
+# Make sure this matches exactly what's in Google Cloud Console
+GOOGLE_REDIRECT_URI="http://localhost:3000/auth/google/callback"
+
+# MongoDB Connection
+DATABASE_URL="" # Or your Atlas connection string
+DATABASE_NAME=""  # your atlas db name
+
+# Secret key for signing cookies (generate a strong random key for production)
+# You can generate one using: openssl rand -base64 64
+COOKIE_SECRET_KEY=""
+```
