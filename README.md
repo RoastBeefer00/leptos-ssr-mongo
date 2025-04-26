@@ -91,6 +91,9 @@ Finally, run the server binary.
 This template itself is released under the Unlicense. You should replace the LICENSE for your own application with an appropriate license if you plan to release it publicly.
 
 ## Setup
+### MongoDb
+You'll have to figure this out on your own.  You can either run it locally or via Atlas.  I used Atlas and set up my 
+DB ahead of time.
 ### Google Auth
 In GCP, set up a new OAUTH 2.0 client with redirect `/auth/google/callback`
 ### Environment variables
