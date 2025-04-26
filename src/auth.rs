@@ -82,11 +82,7 @@ pub async fn google_login_handler(
     // Store CSRF token in a secure, HttpOnly cookie
     let csrf_value_b64 = URL_SAFE_NO_PAD.encode(csrf_state.secret());
     let mut csrf_cookie = Cookie::new(CSRF_COOKIE_NAME, csrf_value_b64);
-    csrf_cookie.set_http_only(true);
-    csrf_cookie.set_path("/");
-    csrf_cookie.set_secure(false); // Set to true if using HTTPS
-    csrf_cookie.set_same_site(SameSite::Lax);
-    // csrf_cookie.set_max_age(tower_cookies::cookie::time::Duration::weeks(2)); // Optional: Expire CSRF token
+    setup_cookie(&mut csrf_cookie);
 
     cookies.add(csrf_cookie); // Add the cookie using the Cookies extractor
 
@@ -193,10 +189,7 @@ pub async fn google_auth_callback_handler(
         .to_hex(); // Convert ObjectId to hex string for cookie
 
     let mut session_cookie = Cookie::new(SESSION_COOKIE_NAME, user_id_str);
-    session_cookie.set_http_only(true);
-    session_cookie.set_path("/");
-    session_cookie.set_secure(false); // Set true for HTTPS
-    session_cookie.set_same_site(SameSite::Lax);
+    setup_cookie(&mut session_cookie);
     session_cookie.set_max_age(tower_cookies::cookie::time::Duration::weeks(2)); // Example: 7 day session
 
     // Add signed cookie using the private jar derived from Cookies + Key
