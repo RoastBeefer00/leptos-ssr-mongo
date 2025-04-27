@@ -69,8 +69,8 @@ pub fn App() -> impl IntoView {
                                 <span>{format!("Logged in as {}", user.name)}</span> " | "
                                 <button class="text-gray-900 bg-gray-300 px-1 rounded" on:click=move |_| {logout_action.dispatch(Logout {});}>"Logout"</button>
                             }.into_any(),
-                            Some(Ok(None)) => view! { <A href="/login">"Login"</A> }.into_any(),
-                            Some(Err(e)) => view! { <span class="error">{format!("Auth Error: {}", e)}</span> }.into_any(),
+                            Some(Ok(None)) => view! { <button class="text-gray-900 bg-gray-300 rounded px-1" on:click=move |_| {window().location().replace("/login/google").unwrap();}>Login</button> }.into_any(),
+                            Some(Err(_)) => view! {/*  <span class="error">{format!("Auth Error: {}", e)}</span>  */}.into_any(),
                             None => view! { <span>"Checking..."</span> }.into_any(), // Loading state
                         }}
                     </Transition>
@@ -78,22 +78,21 @@ pub fn App() -> impl IntoView {
             </header>
             <hr/>
             <main>
-                <Routes fallback=move || "Not found.">
+                <Routes fallback=NotFound>
                     <Route path=path!("/") view=move || {
                         view! {
                             <div class="text-gray-100">
-                                <h2>"Home"</h2>
                                 <Transition fallback=move || view!{<p>"Loading user..."</p>}>
                                 {move || user_resource.get().map(|res| match res {
                                      Ok(Some(user)) => view! { <UserProfile user=user /> }.into_any(),
-                                     Ok(None) => view! { <p>"Welcome! Please log in."</p> }.into_any(),
+                                     Ok(None) => view! { <LoginPage user_resource=user_resource/> }.into_any(),
                                      Err(e) => view! { <p class="error">"Error loading user: " {e.to_string()}</p> }.into_any()
                                 })}
                                 </Transition>
                             </div>
                         }
                     }/>
-                    <Route path=path!("/login") view=LoginPage />
+                    <Route path=path!("/login") view=move || view! {<LoginPage user_resource=user_resource/>} />
                     // Add other routes here
                 </Routes>
             </main>
@@ -102,13 +101,18 @@ pub fn App() -> impl IntoView {
 }
 
 #[component]
-fn LoginPage() -> impl IntoView {
+fn LoginPage(
+    user_resource: Resource<Result<Option<UserClientInfo>, ServerFnError>>,
+) -> impl IntoView {
     Effect::new(move |_| {
-        window().location().replace("/login/google").unwrap();
+        if let Some(Ok(Some(_))) = user_resource.get() {
+            // User is logged in, redirect to home or profile
+            window().location().replace("/").unwrap();
+        }
     });
     view! {
         <div class="flex justify-center items-center">
-            <h2 class="text-gray-100 text-3xl">"Logging in..."</h2>
+            <h2 class="text-gray-100 text-3xl">Welcome, please log in.</h2>
         </div>
     }
 }
@@ -120,6 +124,15 @@ fn UserProfile(user: UserClientInfo) -> impl IntoView {
         <p>"Name: " {user.name}</p>
         <p>"Email: " {user.email}</p>
         // Display other user info here
+    }
+}
+
+#[component]
+fn NotFound() -> impl IntoView {
+    view! {
+        <div class="flex justify-center items-center">
+            <h2 class="text-gray-100 text-3xl">"404 Not Found"</h2>
+        </div>
     }
 }
 
